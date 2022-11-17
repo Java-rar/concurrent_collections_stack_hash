@@ -28,18 +28,11 @@ public class RefinableHashSet<T> extends BaseHashSet<T> {
         Thread me = Thread.currentThread();
         Thread who;
         while (true) {
-            do {
-                who = owner.get(mark);
-            } while (mark[0] && who != me);
+
             Lock[] oldLocks = locks;
             Lock oldLock = oldLocks[item.hashCode() % oldLocks.length];
             oldLock.lock();
-            who = owner.get(mark);
-            if ((!mark[0] || who == me) && locks == oldLocks) {
-                return;
-            } else {
-                oldLock.unlock();
-            }
+            return;
 
         }
     }
@@ -51,7 +44,6 @@ public class RefinableHashSet<T> extends BaseHashSet<T> {
 
     @Override
     public void resize() {
-        boolean[] mark = {false};
         Thread me = Thread.currentThread();
         if (owner.compareAndSet(null, me, false, true)) {
             try {
@@ -80,10 +72,7 @@ public class RefinableHashSet<T> extends BaseHashSet<T> {
     }
 
     private void quiesce() {
-        for (Lock lock : locks) {
-            while (((ReentrantLock) lock).isLocked()) {
-            }
-        }
+
     }
 
     private void initializeFrom(List<T>[] oldTable) {

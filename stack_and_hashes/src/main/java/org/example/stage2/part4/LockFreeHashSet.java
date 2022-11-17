@@ -2,7 +2,6 @@ package org.example.stage2.part4;
 
 import org.example.stage2.HashSet;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LockFreeHashSet<T> implements HashSet<T> {

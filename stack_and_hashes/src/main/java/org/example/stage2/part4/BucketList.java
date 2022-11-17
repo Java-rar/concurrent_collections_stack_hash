@@ -24,7 +24,7 @@ public class BucketList<T> implements Set<T> {
     }
 
     public int makeOrdinaryKey(T item) {
-        int code = item.hashCode() & MASK; //3 lowest bytes
+        int code = item.hashCode() & MASK;
         return reverse(code | HI_MASK);
     }
 
@@ -56,7 +56,7 @@ public class BucketList<T> implements Set<T> {
 
     @Override
     public boolean add(T item) {
-        int key = makeOrdinaryKey(item);
+        int key = makeOrdinaryKey(item);//different hashCode
         while (true) {
             Window<T> window = Window.find(head, key);
             Node<T> pred = window.pred, curr = window.curr;
@@ -73,7 +73,7 @@ public class BucketList<T> implements Set<T> {
 
     @Override
     public boolean remove(T item) {
-        int key = item.hashCode();
+        int key = makeOrdinaryKey(item);//different hashCode
         boolean snip;
         while (true) {
             Window<T> window = Window.find(head, key);
@@ -93,7 +93,7 @@ public class BucketList<T> implements Set<T> {
 
     @Override
     public boolean contains(T item) {
-        int key = makeOrdinaryKey(item);
+        int key = makeOrdinaryKey(item); //different hashCode
         Window<T> window = Window.find(head, key);
         Node<T> curr = window.curr;
         return curr.key == key && !curr.next.isMarked();
@@ -144,7 +144,6 @@ public class BucketList<T> implements Set<T> {
         final int key;
 
         AtomicMarkableReference<Node<T>> next;
-        Lock lock = new ReentrantLock();
 
         public Node(final int key) {
             this.key = key;
@@ -156,13 +155,6 @@ public class BucketList<T> implements Set<T> {
             this.key = key;
         }
 
-        public void lock() {
-            lock.lock();
-        }
-
-        public void unlock() {
-            lock.unlock();
-        }
     }
 
     public static int hashCode(Object obj) {

@@ -28,25 +28,16 @@ public class CoarseHashSet<T> extends BaseHashSet<T> {
 
     @Override
     public void resize() {
-        lock.lock();
-        try {
-            if (!policy()) {
-                return;
+        int newCapacity = 2 * table.length;
+        List<T>[] oldTable = table;
+        table = new List[newCapacity];
+        for (int i = 0; i < newCapacity; i++) {
+            table[i] = new ArrayList<>();
+        }
+        for (List<T> bucket : oldTable) {
+            for (T item : bucket) {
+                table[item.hashCode() % newCapacity].add(item);
             }
-            int newCapacity = 2 * table.length;
-            List<T>[] oldTable = table;
-            table = new List[newCapacity];
-            for (int i = 0; i < newCapacity; i++) {
-                table[i] = new ArrayList<>();
-            }
-            for (List<T> bucket : oldTable) {
-                for (T item : bucket) {
-                    table[item.hashCode() % newCapacity].add(item);
-                }
-            }
-
-        } finally {
-            lock.unlock();
         }
     }
 

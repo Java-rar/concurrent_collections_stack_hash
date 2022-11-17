@@ -33,6 +33,25 @@ public class EliminationBackoffStack<T> extends LockFreeStack<T> {
         }
     }
 
+    @Override
+    public T pop() {
+        RangePolicy rangePolicy = policy.get();
+        while (true) {
+            Node<T> returnNode = tryPop();
+            if (returnNode != null) {
+                return returnNode.value;
+            }  try {
+                T otherValue = eliminationArray.visit(null, rangePolicy.getRange());
+                if (otherValue != null) {
+                    rangePolicy.recordEliminationSuccess();
+                    return otherValue;
+                }
+            } catch (TimeoutException ex) {
+                rangePolicy.recordEliminationTimeout();
+            }
+        }
+    }
+
     private static class RangePolicy {
         int maxRange;
         int currentRange = 1;
