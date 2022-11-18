@@ -31,7 +31,9 @@ public class StripedHashSet<T> extends BaseHashSet<T> {
 
     @Override
     public void resize() {
-
+        for (Lock lock : locks) {
+            lock.lock();
+        }
         try {
             if (!policy()) {
                 return;
@@ -49,7 +51,9 @@ public class StripedHashSet<T> extends BaseHashSet<T> {
             }
 
         } finally {
-
+            for (Lock lock : locks) {
+                lock.unlock();
+            }
         }
     }
 

@@ -43,7 +43,7 @@ public class RefinableCuckooHashSet<T> extends PhasedCuckooHashSet<T> {
                 return;
             } else {
                 oldLock0.unlock();
-                oldLock1.lock();
+                oldLock1.unlock();
             }
         }
     }

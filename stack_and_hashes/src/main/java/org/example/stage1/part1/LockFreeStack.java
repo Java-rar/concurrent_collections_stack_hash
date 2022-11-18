@@ -28,7 +28,8 @@ public class LockFreeStack<T> implements Stack<T> {
 
     protected boolean tryPush(Node<T> node) {
         Node<T> oldTop = top.get();
-        return false;
+        node.next = oldTop;
+        return top.compareAndSet(oldTop, node);
     }
 
     @Override
@@ -49,7 +50,9 @@ public class LockFreeStack<T> implements Stack<T> {
             throw new EmptyException();
         }
         Node<T> newTop = oldTop.next;
-
+        if(top.compareAndSet(oldTop, newTop)){
+            return oldTop;
+        }
         return null;
 
     }

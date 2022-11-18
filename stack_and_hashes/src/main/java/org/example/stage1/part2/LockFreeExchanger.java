@@ -23,16 +23,24 @@ public class LockFreeExchanger<T> {
                 case EMPTY:
                     if (slot.compareAndSet(yoursItem, myItem, EMPTY, WAITING)) {
                         while (System.nanoTime() < timeBound) {
-
+                            yoursItem = slot.get(stampHolder);
+                            if(stampHolder[0] == BUSY){
+                                slot.set(null, EMPTY);
+                                return yoursItem;
+                            }
                         }
                     }
                     if (slot.compareAndSet(myItem, null, WAITING, EMPTY)) {
                         throw new TimeoutException();
                     } else {
-
+                        yoursItem = slot.get(stampHolder);
+                        slot.set(null, EMPTY);
+                        return yoursItem;
                     }
                 case WAITING:
-
+                    if(slot.compareAndSet(yoursItem, myItem, WAITING, BUSY)){
+                        return yoursItem;
+                    }
                 case BUSY:
                     //noop
                 default:
